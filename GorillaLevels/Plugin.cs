@@ -42,7 +42,7 @@ namespace GorillaLevels
             if (CurrentExperience < MaxExperience)
             {
                 CurrentExperience += 100; // 100 is the granted experience for a tag.
-                CheckExperience();
+                LevelUp();
                 DataSystem.SaveData();
             }
         }
@@ -55,6 +55,10 @@ namespace GorillaLevels
                 CurrentExperience = 0;
                 NeededExperience += 250;
                 DataSystem.SaveData();
+            }
+            else if (CurrentExperience >= MaxExperience)
+            {
+                // make the gui or whatever interface i implement say "Max Level!" (may add some rebirth system like [NEW UPDATE] CLICK SIMULATOR 7@8283 BY #8CJDJS PAY ME NOWOW (im tired)
             }
         }
     }
