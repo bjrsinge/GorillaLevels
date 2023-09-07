@@ -1,62 +1,62 @@
 ﻿using BepInEx;
-using System;
 using UnityEngine;
-using HoneyLib;
 using HoneyLib.Events;
+using HarmonyLib;
+using System.Reflection;
+using GorillaLevels.Scripts;
 
 namespace GorillaLevels
 {
-    [BepInDependency("org.legoandmars.gorillatag.utilla")] /* Removed required version since there is no need for a required version. */
-    [BepInPlugin(GUID, PROJECT, VERSION)]
-    internal class Plugin : BaseUnityPlugin
+    [BepInDependency("dev.auros.bepinex.bepinject")] // Why was utilla a dependency theres no need.
+    [BepInPlugin("bjrsinge.gorillalevels", "GorillaLevels", "1.0.0")]
+    public class Plugin : BaseUnityPlugin
     {
+        public static Plugin Instance { get; private set; }
+
         internal int CurrentExperience; // Current Experience (Increases by 50 per tag)
         internal int CurrentLevel; // Current Level
-
         internal int NeededExperience; // Needed experience to level up (Increases by 100 per level (level 1 = 100 xp, level 2 = 200 xp)
-        internal int NextLevel; // Next level (not sure if this is gonna be used tho
+        private int MaxExperience = 500; // The max experience can get for the level system
 
-        /* I changed the variable names so they're more understandable and also tried to translate it lol.*/
-
-        internal const string
-            GUID = "bjrsinge.gorillalevels",
-            PROJECT = "GorillaLevels",
-            VERSION = "1.0.0";
+        private void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+        }
 
         private void Start()
         {
             HoneyLib.Events.Events.TagHitLocal += TagHitLocal;
-            Utilla.Events.GameInitialized += OnGameInitialized;
             Application.quitting += Application.Quit; // ??
-        }
 
-        private void OnEnable()
-        {
-            HarmonyPatches.ApplyHarmonyPatches();
-        }
+            PlayerData playerData = DataSystem.GetPlayerData();
+            CurrentExperience = playerData.CurrentExperience;
+            CurrentLevel = playerData.CurrentLevel;
+            NeededExperience = playerData.NeededExperience;
 
-        private void OnDisable()
-        {
-            HarmonyPatches.RemoveHarmonyPatches();
-        }
-
-        private void OnGameInitialized(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Update()
-        {
-
+            new Harmony("bjrsinge.gorillalevels").PatchAll(Assembly.GetExecutingAssembly());
         }
 
         private void TagHitLocal(object sender, TagHitLocalArgs e)
         {
-            CurrentExperience += 50; // 50 is the granded experience for a tag.
-            CheckExperience();
+            if (CurrentExperience < MaxExperience)
+            {
+                CurrentExperience += 50; // 50 is the granted experience for a tag.
+                CheckExperience();
+                DataSystem.SaveData();
+            }
         }
 
-        private void LevelUp(int level){CurrentLevel = level; CurrentExperience = 0;}
+        private void LevelUp(int level)
+        {
+            CurrentLevel = level;
+            CurrentExperience = 0;
+
+            #if DEBUG
+            Debug.Log("LEVELED UP!");
+            #endif
+        }
+
         private void CheckExperience()
         {
             switch (CurrentExperience)
@@ -82,7 +82,5 @@ namespace GorillaLevels
                     break;
             }
         }
-
-        /* I removed the ModdedGamemode methods since we don't need that for this mod. */
     }
 }
