@@ -30,7 +30,7 @@
       <HintPath>$(GameAssemblyPath)\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="HoneyLib">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\BepInEx\plugins\HoneyLib\HoneyLib.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Downloads\HoneyLib.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath>$(GameAssemblyPath)\Mono.Security.dll</HintPath>

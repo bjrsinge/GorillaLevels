@@ -1,75 +1,88 @@
 ﻿using BepInEx;
 using System;
 using UnityEngine;
-using Utilla;
 using HoneyLib;
 using HoneyLib.Events;
 
 namespace GorillaLevels
 {
-    [ModdedGamemode]
-    [BepInDependency("org.legoandmars.gorillatag.utilla", "1.5.0")]
-    [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
-    public class Plugin : BaseUnityPlugin
+    [BepInDependency("org.legoandmars.gorillatag.utilla")] /* Removed required version since there is no need for a required version. */
+    [BepInPlugin(GUID, PROJECT, VERSION)]
+    internal class Plugin : BaseUnityPlugin
     {
-        public int xp; // ton xp (incréments par 50 pour chaque tag)
-        public int lvl; // ton niveau
-        public int nlvlxp; // le xp tu as besoin de pour le niveau prochain (incréments par 250 pour chaque niveau (niveau 1 = 100 xp, niveau 2 = 200 xp)
-        public bool mod_init;
-        bool inRoom;
+        internal int CurrentExperience; // Current Experience (Increases by 50 per tag)
+        internal int CurrentLevel; // Current Level
 
-        void Start()
+        internal int NeededExperience; // Needed experience to level up (Increases by 100 per level (level 1 = 100 xp, level 2 = 200 xp)
+        internal int NextLevel; // Next level (not sure if this is gonna be used tho
+
+        /* I changed the variable names so they're more understandable and also tried to translate it lol.*/
+
+        internal const string
+            GUID = "bjrsinge.gorillalevels",
+            PROJECT = "GorillaLevels",
+            VERSION = "1.0.0";
+
+        private void Start()
         {
             HoneyLib.Events.Events.TagHitLocal += TagHitLocal;
             Utilla.Events.GameInitialized += OnGameInitialized;
-            Application.quitting += Application.Quit; // jsp si ça marche
+            Application.quitting += Application.Quit; // ??
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             HarmonyPatches.ApplyHarmonyPatches();
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             HarmonyPatches.RemoveHarmonyPatches();
         }
 
-        void OnGameInitialized(object sender, EventArgs e)
-        {
-            mod_init = true;
-            nlvlxp = lvl * 250;
-        }
-
-        void Update()
+        private void OnGameInitialized(object sender, EventArgs e)
         {
 
         }
 
-        void TagHitLocal(object sender, TagHitLocalArgs e)
+        private void Update()
         {
-            xp += 50;
-            if (xp == nlvlxp)
+
+        }
+
+        private void TagHitLocal(object sender, TagHitLocalArgs e)
+        {
+            CurrentExperience += 50; // 50 is the granded experience for a tag.
+            CheckExperience();
+        }
+
+        private void LevelUp(int level){CurrentLevel = level; CurrentExperience = 0;}
+        private void CheckExperience()
+        {
+            switch (CurrentExperience)
             {
-                lvl += 1;
-                xp = 0;
-            }
-            else
-            {
-                // jsp
+                case 100:
+                    LevelUp(1);
+                    break;
+
+                case 200:
+                    LevelUp(2);
+                    break;
+
+                case 300:
+                    LevelUp(3);
+                    break;
+
+                case 400:
+                    LevelUp(4);
+                    break;
+
+                case 500:
+                    LevelUp(5);
+                    break;
             }
         }
 
-        [ModdedGamemodeJoin]
-        public void OnJoin(string gamemode)
-        {
-            inRoom = true;
-        }
-
-        [ModdedGamemodeLeave]
-        public void OnLeave(string gamemode)
-        {
-            inRoom = false;
-        }
+        /* I removed the ModdedGamemode methods since we don't need that for this mod. */
     }
 }
