@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using UnityEngine;
 using HoneyLib.Events;
 using HarmonyLib;
@@ -13,10 +13,10 @@ namespace GorillaLevels
     {
         public static Plugin Instance { get; private set; }
 
-        internal int CurrentExperience; // Current Experience (Increases by 50 per tag)
+        internal int CurrentExperience; // Current Experience (Increases by 100 per tag)
         internal int CurrentLevel; // Current Level
-        internal int NeededExperience; // Needed experience to level up (Increases by 100 per level (level 1 = 100 xp, level 2 = 200 xp)
-        private int MaxExperience = 500; // The max experience can get for the level system
+        internal int NeededExperience; // Needed experience to level up (Increases by 250 per level (level 1 = 250 xp, level 2 = 500 xp)
+        private int MaxExperience = 2500; // The max experience can get for the level system
 
         private void Awake()
         {
@@ -41,45 +41,20 @@ namespace GorillaLevels
         {
             if (CurrentExperience < MaxExperience)
             {
-                CurrentExperience += 50; // 50 is the granted experience for a tag.
+                CurrentExperience += 100; // 100 is the granted experience for a tag.
                 CheckExperience();
                 DataSystem.SaveData();
             }
         }
 
-        private void LevelUp(int level)
+        private void LevelUp()
         {
-            CurrentLevel = level;
-            CurrentExperience = 0;
-
-            #if DEBUG
-            Debug.Log("LEVELED UP!");
-            #endif
-        }
-
-        private void CheckExperience()
-        {
-            switch (CurrentExperience)
+            if (CurrentExperience >= NeededExperience && CurrentExperience < MaxExperience)
             {
-                case 100:
-                    LevelUp(1);
-                    break;
-
-                case 200:
-                    LevelUp(2);
-                    break;
-
-                case 300:
-                    LevelUp(3);
-                    break;
-
-                case 400:
-                    LevelUp(4);
-                    break;
-
-                case 500:
-                    LevelUp(5);
-                    break;
+                CurrentLevel += 1;
+                CurrentExperience = 0;
+                NeededExperience += 250;
+                DataSystem.SaveData();
             }
         }
     }
